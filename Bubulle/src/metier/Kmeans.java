@@ -153,8 +153,8 @@ public class Kmeans {
 					}
 				}
 				else */if (clusters[j].size() < 5 ) // Test de l'angle des points
-				{
-					/*double pAnglex = -1, pAngley = -1, pAnglez = -1, p1x = -1, p1y = -1, p1z = -1, p2x = -1, p2y = -1, p2z = -1 ;
+				{/*
+					double pAnglex = -1, pAngley = -1, pAnglez = -1, p1x = -1, p1y = -1, p1z = -1, p2x = -1, p2y = -1, p2z = -1 ;
 					
 					int cptligne = 0 ;
 					for ( Object o : clusters[j])
@@ -165,7 +165,6 @@ public class Kmeans {
 							p1x = d[0];
 							p1y = d[1];
 							p1z = d[2];
-							//p1z = a[2];
 
 						}
 						else if (cptligne == 1 )
@@ -186,8 +185,9 @@ public class Kmeans {
 					*/
 
 			        newdist = distToCenter(data[i], j);
-					if (newdist <= dist /*&& (calculAngle(pAnglex, pAngley, p1x, p1y, p2x, p2y) <= 20) || calculAngle(pAnglex, pAnglez, p1x, p1z, p2x, p2z) <= 20 || calculAngle(pAngley, pAnglez, p1y, p1z, p2y, p2z) <= 20*/ )
+					if (newdist <= dist /*&& (calculAngle(pAnglex, pAngley, p1x, p1y, p2x, p2y) > 20) && calculAngle(pAnglex, pAnglez, p1x, p1z, p2x, p2z) > 20 && calculAngle(pAngley, pAnglez, p1y, p1z, p2y, p2z) > 20*/ )
 					{
+						//System.out.println("xy="+calculAngle(pAnglex, pAngley, p1x, p1y, p2x, p2y)+" xz="+calculAngle(pAnglex, pAnglez, p1x, p1z, p2x, p2z)+" yz="+calculAngle(pAngley, pAnglez, p1y, p1z, p2y, p2z));
 						clust = j;
 						dist = newdist;
 					}
@@ -196,12 +196,10 @@ public class Kmeans {
 
 			clusters[clust].add(data[i]);
 		}
-
 	}
 
 	private double calculAngle(double pAnglex, double pAngley, double p1x, double p1y, double p2x, double p2y ) 
 	{
-		
 		// Calcul des distances euclidiennes
 		double pAp1 = Math.sqrt(Math.abs( Math.pow((pAnglex-p1x),2) + Math.pow((pAngley-p1y),2) ));
 		double p1p2 = Math.sqrt(Math.abs( Math.pow((p1x-p2x),2) + Math.pow((p1y-p2y),2) ));
@@ -252,7 +250,8 @@ public class Kmeans {
 
 			i++ ;
 			System.out.println(i);
-		} while (delta > epsilon && i < 10000);
+		}
+		while (delta > epsilon && i < 10000);
 	}
 	
 	public void setEpsilon(double epsilon) {

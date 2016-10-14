@@ -4,9 +4,11 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
+import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.RenderingHints;
 import java.util.ArrayList;
+import java.util.Comparator;
 
 import javax.swing.JPanel;
 
@@ -48,7 +50,7 @@ public class Graph extends JPanel
 
     	if( c[1] == 'Z' )
     	{
-    		for ( int i = h-ECART, description = getParent().getWidth()-ZSTART; i > ECART ; i-=ZOOMAxeZ, description++)
+    		for ( int i = h-ECART, description = getParent().getHeight()-ZSTART+ECART; i > ECART ; i-=ZOOMAxeZ, description++)
             {
             	g2.drawLine(ECART,i,ECART+5,i);
             	g2.drawString(description+"", ECART-25,i);
@@ -95,8 +97,9 @@ public class Graph extends JPanel
 
         for( ArrayList<double[]> d : kmeans.getClusters())
         {	
-    	    Polygon p = new Polygon();
-
+    	    //Polygon p = new Polygon();
+    	    ArrayList<Point> classes = new ArrayList<Point>();
+    	    
     	    for(double[] i : d)
         	{
 
@@ -108,8 +111,8 @@ public class Graph extends JPanel
         	    {
         	    	y = z ;
         	    	
-        	    	p.addPoint((ECART+(int)(x*ZOOM))+2, (((h-ECART)-(int)(y*ZOOMAxeZ))+2)+ZSTART);
-        			
+        	    	//p.addPoint((ECART+(int)(x*ZOOM))+2, (((h-ECART)-(int)(y*ZOOMAxeZ))+2)+ZSTART);
+        	    	classes.add(new Point((ECART+(int)(x*ZOOM))+2, (((h-ECART)-(int)(y*ZOOMAxeZ))+2)+ZSTART));
         	        //g.setPaint(new Color(color));
         			g.fillOval(ECART+(int)(x*ZOOM), (((h-ECART)-(int)(y*ZOOMAxeZ)))+ZSTART, 5, 5);
         	    }
@@ -118,23 +121,44 @@ public class Graph extends JPanel
         	    	x = y ;
         	    	y = z ;
         	    	
-        	    	p.addPoint((ECART+(int)(x*ZOOM))+2, (((h-ECART)-(int)(y*ZOOMAxeZ))+2)+ZSTART);
-        			
+        	    	//p.addPoint((ECART+(int)(x*ZOOM))+2, (((h-ECART)-(int)(y*ZOOMAxeZ))+2)+ZSTART);
+        	    	classes.add(new Point((ECART+(int)(x*ZOOM))+2, (((h-ECART)-(int)(y*ZOOMAxeZ))+2)+ZSTART));
+
         	       // g.setPaint(new Color(color));
         			g.fillOval(ECART+(int)(x*ZOOM), (((h-ECART)-(int)(y*ZOOMAxeZ)))+ZSTART, 5, 5);
         	    }
         	    else
         	    {
-        	    	p.addPoint((ECART+(int)(x*ZOOM))+2, ((h-ECART)-(int)(y*ZOOM))+2);
-        			
+        	    	//p.addPoint((ECART+(int)(x*ZOOM))+2, ((h-ECART)-(int)(y*ZOOM))+2);
+        	    	classes.add(new Point((ECART+(int)(x*ZOOM))+2, ((h-ECART)-(int)(y*ZOOM))+2));
+
         	        //g.setPaint(new Color(color));
         			g.fillOval(ECART+(int)(x*ZOOM), (h-ECART)-(int)(y*ZOOM), 5, 5);
         	    }
         		//System.out.println(x+" ; "+y+" ; "+z);		
-
+        	}
+        	classes.sort(new Comparator<Point>() {
+				@Override
+				public int compare(Point p1, Point p2) {
+					if ( p1.x < p2.x)
+						return 1;
+					else if ( p1.x > p2.x )
+						return -1;
+					else
+						return 0;
+				}
+        		
+			});
+        	
+        	Point precedent = null ;
+        	for(Point point : classes)
+        	{
+        		if ( precedent != null )
+        			g.drawLine(precedent.x, precedent.y, point.x, point.y);
+        		precedent = point ;
         	}
         	
-        	g.drawPolygon(p);
+        	//g.drawPolygon(p);
 
         	color += colorPas;
         }	
