@@ -17,8 +17,7 @@ public class Controleur
 {
 	public static void main(String[] args) throws IOException
 	{
-		File file = new File("/home/etudiant/bh110413/Bureau/Coordonnees_mm/norma_N5_tau4_dt2_delai820_000001.txt");
-		//File file = new File("/home/etudiant/bh110413/Bureau/a.txt");
+		File file = new File("donnees/norma_N5_tau4_dt2_delai820_000001.txt");
 
 		double[][] data = new double[Controleur.countLines(file)][3];
 
