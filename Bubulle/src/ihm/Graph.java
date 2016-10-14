@@ -50,7 +50,7 @@ public class Graph extends JPanel
 
     	if( c[1] == 'Z' )
     	{
-    		for ( int i = h-ECART, description = getParent().getHeight()-ZSTART+ECART; i > ECART ; i-=ZOOMAxeZ, description++)
+    		for ( int i = h-ECART, description = (int) (ZSTART/ZOOMAxeZ) ; i > ECART ; i-=ZOOMAxeZ, description++)
             {
             	g2.drawLine(ECART,i,ECART+5,i);
             	g2.drawString(description+"", ECART-25,i);
@@ -97,7 +97,6 @@ public class Graph extends JPanel
 
         for( ArrayList<double[]> d : kmeans.getClusters())
         {	
-    	    //Polygon p = new Polygon();
     	    ArrayList<Point> classes = new ArrayList<Point>();
     	    
     	    for(double[] i : d)
@@ -111,21 +110,23 @@ public class Graph extends JPanel
         	    {
         	    	y = z ;
         	    	
-        	    	//p.addPoint((ECART+(int)(x*ZOOM))+2, (((h-ECART)-(int)(y*ZOOMAxeZ))+2)+ZSTART);
         	    	classes.add(new Point((ECART+(int)(x*ZOOM))+2, (((h-ECART)-(int)(y*ZOOMAxeZ))+2)+ZSTART));
         	        //g.setPaint(new Color(color));
-        			g.fillOval(ECART+(int)(x*ZOOM), (((h-ECART)-(int)(y*ZOOMAxeZ)))+ZSTART, 5, 5);
+        			
+        	    	g.fillOval(ECART+(int)(x*ZOOM), (((h-ECART)-(int)(y*ZOOMAxeZ)))+ZSTART, 5, 5);
+        			//g.drawString(""+z,ECART+(int)(x*ZOOM), (((h-ECART)-(int)(y*ZOOMAxeZ)))+ZSTART);
+
         	    }
         	    else if (coord.equals("YZ"))
         	    {
         	    	x = y ;
         	    	y = z ;
         	    	
-        	    	//p.addPoint((ECART+(int)(x*ZOOM))+2, (((h-ECART)-(int)(y*ZOOMAxeZ))+2)+ZSTART);
         	    	classes.add(new Point((ECART+(int)(x*ZOOM))+2, (((h-ECART)-(int)(y*ZOOMAxeZ))+2)+ZSTART));
-
-        	       // g.setPaint(new Color(color));
+        	        //g.setPaint(new Color(color));
+        	    	
         			g.fillOval(ECART+(int)(x*ZOOM), (((h-ECART)-(int)(y*ZOOMAxeZ)))+ZSTART, 5, 5);
+        			//g.drawString(""+z,ECART+(int)(x*ZOOM), (((h-ECART)-(int)(y*ZOOMAxeZ)))+ZSTART);
         	    }
         	    else
         	    {
