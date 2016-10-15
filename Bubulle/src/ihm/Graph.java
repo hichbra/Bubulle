@@ -101,8 +101,9 @@ public class Graph extends JPanel
     	        	    	y = z ;
     	        	    	
     	        	    	classes.add(new Point((ECART+(int)(x*ZOOM))+2, (((h-ECART)-(int)(y*ZOOMAxeZ))+2)+ZSTART));
-    	        	        //g.setPaint(new Color(color));
-    	        			
+    	        	        
+    	        	    	//g.setPaint(new Color(color));
+    	        	    	g.setPaint(Color.RED);
     	        	    	g.fillOval(ECART+(int)(x*ZOOM), (((h-ECART)-(int)(y*ZOOMAxeZ)))+ZSTART, 5, 5);
     	        			//g.drawString(""+z,ECART+(int)(x*ZOOM), (((h-ECART)-(int)(y*ZOOMAxeZ)))+ZSTART);
 
@@ -113,8 +114,8 @@ public class Graph extends JPanel
     	        	    	y = z ;
     	        	    	
     	        	    	classes.add(new Point((ECART+(int)(x*ZOOM))+2, (((h-ECART)-(int)(y*ZOOMAxeZ))+2)+ZSTART));
-    	        	        //g.setPaint(new Color(color));
     	        	    	
+    	        	    	g.setPaint(Color.RED);
     	        			g.fillOval(ECART+(int)(x*ZOOM), (((h-ECART)-(int)(y*ZOOMAxeZ)))+ZSTART, 5, 5);
     	        			//g.drawString(""+z,ECART+(int)(x*ZOOM), (((h-ECART)-(int)(y*ZOOMAxeZ)))+ZSTART);
     	        	    }
@@ -123,7 +124,7 @@ public class Graph extends JPanel
     	        	    	//p.addPoint((ECART+(int)(x*ZOOM))+2, ((h-ECART)-(int)(y*ZOOM))+2);
     	        	    	classes.add(new Point((ECART+(int)(x*ZOOM))+2, ((h-ECART)-(int)(y*ZOOM))+2));
 
-    	        	        //g.setPaint(new Color(color));
+    	        	        g.setPaint(Color.RED);
     	        			g.fillOval(ECART+(int)(x*ZOOM), (h-ECART)-(int)(y*ZOOM), 5, 5);
     	        	    }
     	        		//System.out.println(x+" ; "+y+" ; "+z);		
@@ -159,7 +160,7 @@ public class Graph extends JPanel
 		
 	}
 
-	/*
+	
 	private void dessineKmeans(Graphics2D g, String coord) 
 	{ 
 		int colorPas = 999999999/kmeans.getNumClusters() ;
@@ -238,7 +239,7 @@ public class Graph extends JPanel
         }	
        
 	}
-	*/
+	
 	class GraphXY extends JPanel 
 	{
 		protected void paintComponent(Graphics g) 
@@ -253,7 +254,7 @@ public class Graph extends JPanel
 
 	        
 	        dessineRepere(g2, "XY");
-	        //dessineKmeans(g2, "XY");
+	        dessineKmeans(g2, "XY");
 	        dessineSpectral(g2, "XY");
 
 	    }
@@ -271,7 +272,7 @@ public class Graph extends JPanel
 	        h = getHeight();
 	        
 	        dessineRepere(g2, "XZ");
-	        //dessineKmeans(g2, "XZ");
+	        dessineKmeans(g2, "XZ");
 	        dessineSpectral(g2, "XZ");
 
 	    }
@@ -290,7 +291,7 @@ public class Graph extends JPanel
 	        h = getHeight();
 	        
 	        dessineRepere(g2, "YZ");
-	        //dessineKmeans(g2, "YZ");
+	        dessineKmeans(g2, "YZ");
 	        dessineSpectral(g2, "YZ");
 
 	    }
