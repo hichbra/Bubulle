@@ -8,6 +8,7 @@ import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.RenderingHints;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 
 import javax.swing.JPanel;
@@ -19,17 +20,18 @@ public class Graph extends JPanel
 	private final int ZOOM = 30;
 	private final double ZOOMAxeZ = 9;
 	private final int ZSTART = 850;
-
-
+	
 	private final int ECART = 30;
 	private double[][] data ;
 	private Kmeans kmeans ;
+	private ArrayList<double[]>[] spectral ;
 	private int w, h ; // Largeur et Hauteur de la fenetre
     
-    public Graph(double[][] d, Kmeans kmeans)
+    public Graph(double[][] d, int nbClusters, Kmeans kmeans, ArrayList<double[]>[] spectral)
     {
     	this.data = d ;
     	this.kmeans = kmeans ;
+    	this.spectral = spectral ;
     	
     	this.setLayout(new GridLayout(2, 2));
     	this.add(new GraphXY());
@@ -73,20 +75,91 @@ public class Graph extends JPanel
         }
 	}
 	
-/*
-	private void dessineData(Graphics2D g) 
+
+	private void dessineSpectral(Graphics2D g, String coord) 
 	{
-		for ( double[] d : data)
-		{
-			double x = d[0];
-			double y = d[1];
-			double z = d[2];
-			//System.out.println(x+" "+y);
-			
-			g.drawOval(ECART+(int)(x*ZOOM), (h-ECART)-(int)(y*ZOOM), 5, 5);
-		}
-	}*/
-	
+		int colorPas = 999999999/kmeans.getNumClusters() ;
+		int color = 0 ;
+		int r = 0 ;
+		int v = 0 ;
+		int b = 0 ;
+		
+		for( ArrayList<double[]> d : spectral)
+        {	
+    	    ArrayList<Point> classes = new ArrayList<Point>();
+    	    if ( d != null)
+    	    {
+    	    	 for(double[] i : d)
+    	        	{
+
+    	        	    double x = i[0];
+    	    			double y = i[1];
+    	    			double z = i[2];
+
+    	        	    if (coord.equals("XZ"))
+    	        	    {
+    	        	    	y = z ;
+    	        	    	
+    	        	    	classes.add(new Point((ECART+(int)(x*ZOOM))+2, (((h-ECART)-(int)(y*ZOOMAxeZ))+2)+ZSTART));
+    	        	        //g.setPaint(new Color(color));
+    	        			
+    	        	    	g.fillOval(ECART+(int)(x*ZOOM), (((h-ECART)-(int)(y*ZOOMAxeZ)))+ZSTART, 5, 5);
+    	        			//g.drawString(""+z,ECART+(int)(x*ZOOM), (((h-ECART)-(int)(y*ZOOMAxeZ)))+ZSTART);
+
+    	        	    }
+    	        	    else if (coord.equals("YZ"))
+    	        	    {
+    	        	    	x = y ;
+    	        	    	y = z ;
+    	        	    	
+    	        	    	classes.add(new Point((ECART+(int)(x*ZOOM))+2, (((h-ECART)-(int)(y*ZOOMAxeZ))+2)+ZSTART));
+    	        	        //g.setPaint(new Color(color));
+    	        	    	
+    	        			g.fillOval(ECART+(int)(x*ZOOM), (((h-ECART)-(int)(y*ZOOMAxeZ)))+ZSTART, 5, 5);
+    	        			//g.drawString(""+z,ECART+(int)(x*ZOOM), (((h-ECART)-(int)(y*ZOOMAxeZ)))+ZSTART);
+    	        	    }
+    	        	    else
+    	        	    {
+    	        	    	//p.addPoint((ECART+(int)(x*ZOOM))+2, ((h-ECART)-(int)(y*ZOOM))+2);
+    	        	    	classes.add(new Point((ECART+(int)(x*ZOOM))+2, ((h-ECART)-(int)(y*ZOOM))+2));
+
+    	        	        //g.setPaint(new Color(color));
+    	        			g.fillOval(ECART+(int)(x*ZOOM), (h-ECART)-(int)(y*ZOOM), 5, 5);
+    	        	    }
+    	        		//System.out.println(x+" ; "+y+" ; "+z);		
+    	        	}
+    	        	classes.sort(new Comparator<Point>() {
+    					@Override
+    					public int compare(Point p1, Point p2) {
+    						if ( p1.x < p2.x)
+    							return 1;
+    						else if ( p1.x > p2.x )
+    							return -1;
+    						else
+    							return 0;
+    					}
+    	        		
+    				});
+    	        	
+    	        	Point precedent = null ;
+    	        	for(Point point : classes)
+    	        	{
+    	        		if ( precedent != null )
+    	        			g.drawLine(precedent.x, precedent.y, point.x, point.y);
+    	        		precedent = point ;
+    	        	}
+    	        	
+    	        	//g.drawPolygon(p);
+
+    	        	color += colorPas;
+    	    }
+    	   
+        }	
+		
+		
+	}
+
+	/*
 	private void dessineKmeans(Graphics2D g, String coord) 
 	{ 
 		int colorPas = 999999999/kmeans.getNumClusters() ;
@@ -165,7 +238,7 @@ public class Graph extends JPanel
         }	
        
 	}
-	
+	*/
 	class GraphXY extends JPanel 
 	{
 		protected void paintComponent(Graphics g) 
@@ -180,11 +253,10 @@ public class Graph extends JPanel
 
 	        
 	        dessineRepere(g2, "XY");
-	        //dessineData(g2);
-	        dessineKmeans(g2, "XY");
-	       
-	    }
+	        //dessineKmeans(g2, "XY");
+	        dessineSpectral(g2, "XY");
 
+	    }
 	}
 	
 	class GraphXZ extends JPanel 
@@ -199,9 +271,9 @@ public class Graph extends JPanel
 	        h = getHeight();
 	        
 	        dessineRepere(g2, "XZ");
-	        //dessineData(g2);
-	        dessineKmeans(g2, "XZ");
-	       
+	        //dessineKmeans(g2, "XZ");
+	        dessineSpectral(g2, "XZ");
+
 	    }
 
 	}
@@ -218,9 +290,9 @@ public class Graph extends JPanel
 	        h = getHeight();
 	        
 	        dessineRepere(g2, "YZ");
-	        //dessineData(g2);
-	        dessineKmeans(g2, "YZ");
-	       
+	        //dessineKmeans(g2, "YZ");
+	        dessineSpectral(g2, "YZ");
+
 	    }
 
 	}

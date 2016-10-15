@@ -249,7 +249,7 @@ public class Kmeans {
 			}
 
 			i++ ;
-			System.out.println(i);
+			//System.out.println(i);
 		}
 		while (delta > epsilon && i < 10000);
 	}
