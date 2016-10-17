@@ -1,6 +1,5 @@
 package ihm;
 
-import java.awt.Point;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
@@ -9,25 +8,155 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 import javax.swing.JFrame;
 
-import smile.clustering.SpectralClustering;
 import metier.Kmeans;
+import metier.Spectral;
 
 public class Controleur 
 {
-	public static void main(String[] args) throws IOException
+	private double[][] data ;
+	private double[][] dataClasses ;
+
+	public Controleur() throws IOException
 	{
 		File file = new File("donnees/norma_N5_tau4_dt2_delai820_000001.txt");
+		File fileTraj = new File("trajectoiresBonnes/norma_N5_tau4_dt2_delai820_000001_tra.txt");
 
-		double[][] data = new double[Controleur.countLines(file)][3];
+		this.data = lireDonnees(file);
+		this.dataClasses = lireTrajectoire(data, fileTraj);
+		
+        /*
+        for ( double[] d : dataClasses)
+        {
+        	for( double v: d)
+        	{
+        		System.out.print(v+" |||||| ");
+        	}
+        	System.out.println();
+        }
+        System.out.println("===========================");
+        */
+        
+        /* ------------- METHODE DES K-MOYENNES --------------*/
+        Kmeans kmeans = new Kmeans(data, countLines(file)/5, true);
+        kmeans.setEpsilon(0.01);
+        kmeans.calculateClusters();
+     
+        System.out.println("KMEANS = "+getAccuracy(kmeans.getClusters())*10+"%");
+        /* ---------------------------------------------------*/
+       
+        
+        /* ------------ CLASSIFICATION SPECTRAL ------------- */
+        ArrayList<double[]>[] spectral = Spectral.getClusters(data, countLines(file)/5) ;
+       
+        System.out.println("SPECTRAL = "+getAccuracy(spectral)*10+"%");
+        /* ---------------------------------------------------*/
 
-	    FileReader fr = new FileReader(file);
-        BufferedReader br = new BufferedReader(fr);
+
+        JFrame f = new JFrame();
+        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        f.add(new Graph(data, countLines(file)/5, kmeans, spectral));
+        f.setSize(950,930);
+        f.setLocation(50,50);
+
+        f.setVisible(true);
+	}
+	
+	private double getAccuracy(ArrayList<double[]>[] prediction)
+	{
+		double nbClassesTot = dataClasses.length/5 ;
+		int nbClassesCorrect = (int) nbClassesTot ;
+				
+		ArrayList<Integer> mauvaisesClasses = new ArrayList<Integer>();
+		
+		for ( double[] dataclasse : dataClasses)
+        {
+			boolean classeBonne = false ;
+		
+			if ( ! mauvaisesClasses.contains((int)dataclasse[3]) )
+			{
+				for( double[] datapredict : prediction[(int)dataclasse[3]] )
+				{
+					//System.out.println(datapredict[0]+" "+datapredict[1]+" "+datapredict[2]);
+					//System.out.println(dataclasse[0]+" "+dataclasse[1]+" "+dataclasse[2]);
+					if( datapredict[0] == dataclasse[0] && datapredict[1] == dataclasse[1] && datapredict[2] == dataclasse[2] )
+						classeBonne = true ;
+					
+				}
+				
+				if( !classeBonne )
+				{
+					mauvaisesClasses.add((int)dataclasse[3]);
+					nbClassesCorrect-- ;
+				}
+			}
+        }
+		
+		return ((double)nbClassesCorrect/(double)nbClassesTot) ;
+		
+	}
+
+	private double[][] lireTrajectoire(double[][] data2, File fileTraj) throws IOException
+	{        
+        double[][] trajectoire = new double[countLines(fileTraj)][5];
+
+		FileReader fr = new FileReader(fileTraj);
+		BufferedReader br = new BufferedReader(fr);
+
+        int numLine = 0 ;
+        for (String line = br.readLine(); line != null; line = br.readLine())
+        {
+        	int numCol = 0 ;
+           	for( String s : line.split(" "))
+           	{
+           		if( !s.isEmpty() && numCol < 5)
+           		{
+           			trajectoire[numLine][numCol] = Double.parseDouble(s);
+           			
+           			numCol++ ;
+           		}
+           	}
+           	
+        	numLine++ ;
+        }
+
+        br.close();
+        fr.close();
+		
+        double[][] dataClasses = new double[countLines(fileTraj)*5][4]; 
+        
+        int classe = 0 ;
+    	int i = 0 ;
+
+        for( double[] lineTrajectoire : trajectoire)
+        {
+        	for ( double lineDonnes : lineTrajectoire )
+        	{
+        		double x = data2[(int)lineDonnes-1][0];
+        		double y = data2[(int)lineDonnes-1][1];
+        		double z = data2[(int)lineDonnes-1][2];
+        		
+        		dataClasses[i][0] = x ;
+        		dataClasses[i][1] = y ;
+        		dataClasses[i][2] = z ;
+        		dataClasses[i][3] = classe ;
+        		
+        		i++ ;
+        	}
+        	classe++ ;
+        }
+        
+        return dataClasses;
+	}
+
+	private double[][] lireDonnees(File file) throws IOException 
+	{
+		double[][] data = new double[countLines(file)][3];
+
+		FileReader fr = new FileReader(file);
+		BufferedReader br = new BufferedReader(fr);
 
         int numLine = 0 ;
         for (String line = br.readLine(); line != null; line = br.readLine())
@@ -48,218 +177,11 @@ public class Controleur
 
         br.close();
         fr.close();
-        
-        /*
-        for ( double[] d : data)
-        {
-        	for( double v: d)
-        	{
-        		System.out.print(v+" |||||| ");
-        	}
-        	System.out.println();
-        }
-        System.out.println("===========================");
-        */
-        
-        /*
-        Kmeans kmeans = new Kmeans(data, 3, true);
-        kmeans.calculateClusters();
-        */
-        /*
-        double varMin = 999;
-        Kmeans kmeansVarMin = null ;
-        double varMax = 0;
-        Kmeans kmeansVarMax = null ;
-        
-        for (int i = 0 ; i <= 1 ; i++)
-        {
-            Kmeans kmeans = new Kmeans(data, Controleur.countLines(file)/5, true);
-            kmeans.calculateClusters();
-            if (kmeans.getTotalVar() < varMin)
-            {
-            	varMin = kmeans.getTotalVar() ;
-            	kmeansVarMin = kmeans ;
-            }
-            
-            if (kmeans.getTotalVar() > varMax)
-            {
-            	varMax = kmeans.getTotalVar() ;
-            	kmeansVarMax = kmeans ;
-            }
-            
-            System.out.println(i);
-
-        }
-        
-        
-        JFrame f = new JFrame("kmeansVarMin "+varMin);
-        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        f.add(new Graph(data, kmeansVarMin));
-        f.setSize(950,930);
-        f.setLocation(50,50);
-
-        f.setVisible(true);
-        
-        JFrame f2 = new JFrame("kmeansVarMax "+varMax);
-        f2.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        f2.add(new Graph(data, kmeansVarMax));
-        f2.setSize(950,930);
-        f2.setLocation(50,50);
-
-        f2.setVisible(true);*/    
-        
-        
-        /*JFrame f2 = new JFrame();
-        f2.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        f2.add(new Graph(data, kmeans));
-        f2.setSize(950,930);
-        f2.setLocation(50,50);
-
-        f2.setVisible(true);*/
-        
-        
-        Kmeans kmeans = new Kmeans(data, Controleur.countLines(file)/5, true);
-        kmeans.setEpsilon(0.01);
-        kmeans.calculateClusters();
-     
-        
-       
-        // Les clusters définitifs contiennent 5 points chacunes
-        int nbClasses = Controleur.countLines(file)/5 ;
-        double sigma = 1 ; boolean augmente = true ;
-        ArrayList<double[]>[] clustersDefinitifs = new ArrayList[nbClasses];
-
-  		
-  		// Tant que toutes les classes ne contienne pas 5 éléments : on enregistre celle en contienne 5
-  		// puis on les supprime du jeu de donnees pour recommencer la classification sans elle
-  		int stagne = 0 ;
-  		int memetaille = taille(clustersDefinitifs) ;
-        while ( nbClasses > 1 )
-  		{
-  	        SpectralClustering s = new SpectralClustering(data, nbClasses, sigma);
-  	        ArrayList<double[]>[] clusters = new ArrayList[nbClasses];
-
-  			
-  			// Regroupement des classes par labels 
-  	  		for (int i = 0 ; i < nbClasses ; i++) 
-  	  		{
-  	  			ArrayList<double[]> classes = new ArrayList<double[]>();
-  	  			
-  	  			for ( int ligne = 0 ; ligne < data.length ; ligne++)
-  	  			{
-  	  				if ( s.getClusterLabel()[ligne] == i )
-  	  					classes.add(data[ligne]);
-  	  			}
-  	  			
-  	  			clusters[i] = classes ;
-  	  		}
-  			
-  			// ENREGISTREMENT ET SUPPRESSION
-  	        for( ArrayList<double[]> d : clusters)
-  	        {	 	    	    
-  	    	    
-  	    	    // Enregistrement et suppression du jeu de donnes des classes contenant 5 éléments
-  	    	    if ( d.size() == 5 )
-  	    	    {  	    	    	
-  	    	    	clustersDefinitifs[taille(clustersDefinitifs)] = d;
-  	    	    	
-  	    	    	// Suppression des donnees de la base
-  	    	    	double x=-1, y=-1, z=-1 ;
-  	    	    	for(double[] val : d)
-  	    	    	{
-  	    	    		x = val[0];
-  	    	    		y = val[1];
-  	    	    		z = val[2];
-  	    	    		
-  	  	    	    	//System.out.print(x+" "+y+" "+z);
-
-  	    	    		int ligne = 0 ;
-  	  	    	    	for ( double[] line : data)
-  	  	    	    	{
-  	  	    	    		if ( line[0] == x && line[1] == y && line[2] == z )
-  	  	    	    			data = removeLine(data, ligne);
-  	  	    	    		
-  	  	    	    		ligne++;
-  	  	    	    	}
-  	    	    	}
-  	    	    	
-  	    	    	nbClasses--;
-
-  	    	    }
-  	        }
-  	        
-  			
-  	        if ( taille(clustersDefinitifs) == memetaille )
-  	        	stagne++ ;
-  	        else
-  	        	memetaille = taille(clustersDefinitifs) ;
-  	        
-  	        if ( stagne % 10 == 0 )
-  	        {
-  	        	if(sigma > 3)
-  	        		augmente = false ;
-  	        	else if ( sigma < 0.15 )
-  	        		augmente = true ;
-  	        	
-  	        	if (augmente)
-  	        		sigma += 0.01;
-  	        	else
-  	        		sigma -= 0.01;
-  	        	
-  	        	//System.out.println("SIGMA = "+sigma);
-  	  			System.out.println("TAILLE = "+taille(clustersDefinitifs)+" Cluster="+nbClasses+" ancienne taille = "+memetaille);
-
-  	        }
-  	        
-  		}
-  		
-
-        JFrame f = new JFrame();
-        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        f.add(new Graph(data, Controleur.countLines(file)/5, kmeans, clustersDefinitifs));
-        f.setSize(950,930);
-        f.setLocation(50,50);
-
-        f.setVisible(true);
-	}
-	
-	
-	
-	
-	private static int taille(ArrayList<double[]>[] clusters) 
-	{
-		int i = 0 ;
 		
-		for( ArrayList<double[]> d : clusters)
-			if ( d != null )
-				i++;
-		
-		
-		return i;
+        return data;
 	}
 
-	private static int taille(double[][] data) 
-	{
-		int i = 0 ;
-		
-		for( double[] d : data)
-		{
-			boolean vide = true;
-			for ( double v : d )
-			{
-				vide = true ;
-				if ( v != 0 )
-					vide = false ;
-			}
-			
-			if( !vide )
-				i++;
-		}
-		return i;
-	}
-
-
-	public static int countLines(File file) throws IOException 
+	private int countLines(File file) throws IOException 
 	{
 	    InputStream is = new BufferedInputStream(new FileInputStream(file));
 	    try {
@@ -281,47 +203,9 @@ public class Controleur
 	    }
 	}
 	
-	/*
-	public static double[][] removeLine(double[][] a, int v) 
+	public static void main(String[] args) throws IOException
 	{
-	    int r = a.length;
-	    int c = a[0].length;
-
-	    double[][] b = new double[r][c];
-
-	    int red = 0;
-	    boolean s = false;
-	    for (int i = 0; i < r; i++) {
-	        for (int j = 0; j < c; j++) {
-	            b[i - red][j] = a[i][j];
-	            if (a[i][j] == v) {
-	                red += 1;
-	                if(i==r-1){
-	                    s = true;
-	                }
-	                break;
-	            }
-	        }
-	    }
-	    //check last row
-	    if(s){
-	    for(int i = r-red;i <r-red +1; i++ )
-	        for (int j = 0; j<c; j++){
-	            b[i][j] = 0;
-	        }
-	    }
-	    return b;
-	}*/
-	
-	public static double[][] removeLine(double[][] a, int v) 
-	{
-		List<double[]> l = new ArrayList<double[]>(Arrays.asList(a));
-
-		l.remove(v);
-		double[][] array2 = l.toArray(new double[][]{});
-		
-		return array2 ;
-		
+		new Controleur() ;
 	}
-
+	
 }

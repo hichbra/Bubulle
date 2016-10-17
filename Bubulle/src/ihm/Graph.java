@@ -38,7 +38,6 @@ public class Graph extends JPanel
     	this.add(new JPanel());
     	this.add(new GraphXZ());
     	this.add(new GraphYZ());
-
     }
     
     

@@ -4,8 +4,8 @@ package metier;
 import java.util.Random;
 import java.util.ArrayList;
 
-public class Kmeans {
-
+public class Kmeans 
+{
 	private double[][] data; // data to cluster
 	private int numClusters; // number of clusters
 	private double[][] clusterCenters; // cluster centers
