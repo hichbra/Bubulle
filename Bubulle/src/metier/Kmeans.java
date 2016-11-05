@@ -1,5 +1,4 @@
 package metier;
-// Kmeans.java 
 
 import java.util.Random;
 import java.util.ArrayList;
@@ -16,7 +15,8 @@ public class Kmeans
 
 	private double epsilon;
 
-	public Kmeans(double[][] data, int numClusters, double[][] clusterCenters) {
+	public Kmeans(double[][] data, int numClusters, double[][] clusterCenters)
+	{
 		dataSize = data.length;
 		dataDim = data[0].length;
 
@@ -129,7 +129,7 @@ public class Kmeans
 	}
 
 	
-	private void assignData() {
+	private void assignData(int angleMax) {
 		for (int k = 0; k < numClusters; k++) {
 			clusters[k].clear();
 		}
@@ -142,18 +142,8 @@ public class Kmeans
 			for (int j = 0; j < numClusters; j++)
 			{
 				// On limite les points par classes a 5 maximum
-				// Test de l'angle des points
-				/*if(clusters[j].size() < 2) 
+				if (clusters[j].size() < 5 ) // Contrainte d'angle des points = < 90°
 				{
-					newdist = distToCenter(data[i], j);
-					
-					if (newdist <= dist) {
-						clust = j;
-						dist = newdist;
-					}
-				}
-				else */if (clusters[j].size() < 5 ) // Test de l'angle des points
-				{/*
 					double pAnglex = -1, pAngley = -1, pAnglez = -1, p1x = -1, p1y = -1, p1z = -1, p2x = -1, p2y = -1, p2z = -1 ;
 					
 					int cptligne = 0 ;
@@ -182,10 +172,10 @@ public class Kmeans
 					pAnglex = data[i][0];
 					pAngley = data[i][1];
 					pAnglez = data[i][2];
-					*/
+					
 
 			        newdist = distToCenter(data[i], j);
-					if (newdist <= dist /*&& (calculAngle(pAnglex, pAngley, p1x, p1y, p2x, p2y) > 20) && calculAngle(pAnglex, pAnglez, p1x, p1z, p2x, p2z) > 20 && calculAngle(pAngley, pAnglez, p1y, p1z, p2y, p2z) > 20*/ )
+					if (newdist <= dist && ((calculAngle(pAnglex, pAngley, p1x, p1y, p2x, p2y) <= angleMax) || calculAngle(pAnglex, pAnglez, p1x, p1z, p2x, p2z) <= angleMax || calculAngle(pAngley, pAnglez, p1y, p1z, p2y, p2z) <= angleMax ))
 					{
 						//System.out.println("xy="+calculAngle(pAnglex, pAngley, p1x, p1y, p2x, p2y)+" xz="+calculAngle(pAnglex, pAnglez, p1x, p1z, p2x, p2z)+" yz="+calculAngle(pAngley, pAnglez, p1y, p1z, p2y, p2z));
 						clust = j;
@@ -223,7 +213,7 @@ public class Kmeans
 	}
 
 	
-	public void calculateClusters() {
+	public int calculateClusters(int iteration, int angleMax) {
 
 		double var1 = Double.MAX_VALUE;
 		double var2;
@@ -232,26 +222,28 @@ public class Kmeans
 		int i = 0 ;
 		do {
 			calculateClusterCenters();
-			assignData();
+			assignData(angleMax);
 			calculateClusterVars();
 			var2 = getTotalVar();
-			if (Double.isNaN(var2)) // if this happens, there must be some empty
-									// clusters
+			if (Double.isNaN(var2)) 
 			{
 				delta = Double.MAX_VALUE;
 				randomizeCenters(numClusters, data);
-				assignData();
+				assignData(angleMax);
 				calculateClusterCenters();
 				calculateClusterVars();
 			} else {
 				delta = Math.abs(var1 - var2);
 				var1 = var2;
 			}
+			
+			System.out.println("interation "+i);
 
 			i++ ;
-			//System.out.println(i);
 		}
-		while (delta > epsilon && i < 10000);
+		while (delta > epsilon && i < iteration);
+		
+		return i ;
 	}
 	
 	public void setEpsilon(double epsilon) {
@@ -263,9 +255,8 @@ public class Kmeans
 	public int getNumClusters() {
 		return numClusters;
 	}
-	/**
-	 * @return the clusterCenters
-	 */
+	
+
 	public double[][] getClusterCenters() {
 		return clusterCenters;
 	}

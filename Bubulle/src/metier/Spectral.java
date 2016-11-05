@@ -14,10 +14,8 @@ public class Spectral
 	public static ArrayList<double[]>[] getClusters(double[][] data, int nbClasses)
 	{
 		 // Les clusters définitifs contiennent 5 points chacunes
-
         double sigma = 1 ; boolean augmente = true ;
         ArrayList<double[]>[] clustersDefinitifs = new ArrayList[nbClasses];
-
   		
   		// Tant que toutes les classes ne contienne pas 5 éléments : on enregistre celle en contienne 5
   		// puis on les supprime du jeu de donnees pour recommencer la classification sans elle
@@ -60,8 +58,6 @@ public class Spectral
   	    	    		y = val[1];
   	    	    		z = val[2];
   	    	    		
-  	  	    	    	//System.out.print(x+" "+y+" "+z);
-
   	    	    		int ligne = 0 ;
   	  	    	    	for ( double[] line : data)
   	  	    	    	{
@@ -97,12 +93,13 @@ public class Spectral
   	        	else
   	        		sigma -= 0.01;
   	        	
-  	        	/*
-  	        	System.out.println("SIGMA = "+sigma);
-  	  			System.out.println("TAILLE = "+taille(clustersDefinitifs)+" Cluster="+nbClasses);
-  	  			*/
+  	        	
+  	  			System.out.println("Cluster restant= "+nbClasses+" SIGMA = "+sigma);
+  	  			
   	        }
   	        
+  	        if( stagne >= 500000)
+  	        	return null ;
   		}
   		
         return clustersDefinitifs ;
