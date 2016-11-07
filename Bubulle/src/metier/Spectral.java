@@ -81,7 +81,7 @@ public class Spectral
   	        {
   	        	if(sigma > 3 && stagne < 20000)
   	        		augmente = false ;
-  	        	else if ( sigma < 0.15 )
+  	        	else if ( sigma < 0.21 )
   	        		augmente = true ;
   	        	else if ( sigma > 10 )
   	        		augmente = false ;
