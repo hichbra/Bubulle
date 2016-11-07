@@ -35,11 +35,11 @@ public class Controleur
   	private JMenu affichage = new JMenu("Affichage");
   	private JMenu animation = new JMenu("Animation");
   	private JMenu algo = new JMenu("Algorithme");
-  	//private JMenu spectral = new JMenu("Classification Spectral");
-
 
   	private JMenuItem fermer = new JMenuItem("Fermer");
-  	private JMenuItem importer = new JMenuItem("Importer");
+  	private JMenuItem importer = new JMenuItem("Import..");
+  	private JMenuItem exporter = new JMenuItem("Export..");
+
   	
   	private JMenuItem couleur = new JMenuItem("Couleur");
   	private JMenuItem lien = new JMenuItem("Lien");
@@ -69,12 +69,13 @@ public class Controleur
 		*/
         
         /* ------------ CLASSIFICATION SPECTRAL ------------- */
-      //  ArrayList<double[]>[] spectral = Spectral.getClusters(data, countLines(file)/5) ;
+  		//  ArrayList<double[]>[] spectral = Spectral.getClusters(data, countLines(file)/5) ;
        
-       // System.out.println("SPECTRAL = "+getAccuracy(spectral)*10+"%");
+  		// System.out.println("SPECTRAL = "+getAccuracy(spectral)*10+"%");
         /* ---------------------------------------------------*/
   		
         importer.addActionListener(new Action());
+        exporter.addActionListener(new Action());
         fermer.addActionListener(new Action());
 
         couleur.addActionListener(new Action());
@@ -91,6 +92,7 @@ public class Controleur
         spectral.addActionListener(new Action());
         
         fichier.add(importer);
+        fichier.add(exporter);
         fichier.addSeparator();
         fichier.add(fermer);
         //------
@@ -161,14 +163,35 @@ public class Controleur
 				        frame.revalidate();
 				        frame.repaint();
 				        
-						JOptionPane.showMessageDialog(null, iterationFaite+" iteration realisÈ", "Information", JOptionPane.INFORMATION_MESSAGE);
+						JOptionPane.showMessageDialog(null, iterationFaite+" iteration realis√©", "Information", JOptionPane.INFORMATION_MESSAGE);
 					 } 
 					 catch (Exception ex)
 					 {
 						 ex.printStackTrace();
-						 JOptionPane.showMessageDialog(null, "Traitement du fichier impossible, veuillez vÈrifier le format du fichier", "Erreur", JOptionPane.ERROR_MESSAGE);
+						 JOptionPane.showMessageDialog(null, "Traitement du fichier impossible, veuillez v√©rifier le format du fichier", "Erreur", JOptionPane.ERROR_MESSAGE);
 					 }
 				}
+			}
+			else if ( e.getSource() == exporter )
+			{
+				JFileChooser fc = new JFileChooser();
+				int returnVal = fc.showOpenDialog(frame);
+				
+				if (returnVal == JFileChooser.APPROVE_OPTION) 
+				{
+					try
+					{	
+						File file = fc.getSelectedFile();
+						graph.export(file);
+						JOptionPane.showMessageDialog(null, "Le fichier "+file.getName()+" a √©t√© export√©", "Information", JOptionPane.INFORMATION_MESSAGE);
+
+					} 
+					catch (Exception ex)
+					{
+						ex.printStackTrace();
+						JOptionPane.showMessageDialog(null, "Traitement du fichier impossible, veuillez v√©rifier le format du fichier", "Erreur", JOptionPane.ERROR_MESSAGE);
+					}
+				} 
 			}
 			else if ( e.getSource() == fermer )
 			{
@@ -214,7 +237,7 @@ public class Controleur
 			else if ( e.getSource() == kmean )
 			{
 				String i = JOptionPane.showInputDialog(null, "Veuillez indiquer le nombre d'iteration ?", "K-Means", JOptionPane.QUESTION_MESSAGE);
-				String a = JOptionPane.showInputDialog(null, "Veuillez indiquer la contrainte d'angle (en degrÈ)", "K-Means", JOptionPane.QUESTION_MESSAGE);
+				String a = JOptionPane.showInputDialog(null, "Veuillez indiquer la contrainte d'angle (en degr√©)", "K-Means", JOptionPane.QUESTION_MESSAGE);
 
 				try
 				{
@@ -238,18 +261,18 @@ public class Controleur
 			        frame.revalidate();
 			        frame.repaint();
 			        
-					JOptionPane.showMessageDialog(null, "K-Means: "+iterationFaite+" iteration realisÈ", "Information", JOptionPane.INFORMATION_MESSAGE);
+					JOptionPane.showMessageDialog(null, "K-Means: "+iterationFaite+" iteration realis√©", "Information", JOptionPane.INFORMATION_MESSAGE);
 
 				}
 				catch(Exception ex)
 				{
 					ex.printStackTrace();
-					JOptionPane.showMessageDialog(null, "Erreur lors de l'execution de l'algorithme. Veuillez vÈrifier les paramËtres", "Erreur", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(null, "Erreur lors de l'execution de l'algorithme. Veuillez v√©rifier les param√®tres", "Erreur", JOptionPane.ERROR_MESSAGE);
 				}
 			}
 			else if ( e.getSource() == spectral )
 			{
-				int confirm = JOptionPane.showConfirmDialog(null, "Afin de filtrer les classes ‡ 5 ÈlÈments chacune, nous allons devoir faire plusieurs recherches en ajustant le sigma du noyau Gaussien.\nCe processus peut Ítre long, voulez-vous continuer ?", "Classification Spectral", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);;
+				int confirm = JOptionPane.showConfirmDialog(null, "Afin de filtrer les classes √† 5 √©l√©ments chacune, nous allons devoir faire plusieurs recherches en ajustant le sigma du noyau Gaussien.\nCe processus peut √™tre long, voulez-vous continuer ?", "Classification Spectral", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);;
 
 				if(confirm != JOptionPane.NO_OPTION && confirm != JOptionPane.CANCEL_OPTION && confirm != JOptionPane.CLOSED_OPTION)
 				{
@@ -269,11 +292,11 @@ public class Controleur
 				        frame.revalidate();
 				        frame.repaint();
 				        
-						JOptionPane.showMessageDialog(null, "Spectral: Classification terminÈe", "Information", JOptionPane.INFORMATION_MESSAGE);
+						JOptionPane.showMessageDialog(null, "Spectral: Classification termin√©e", "Information", JOptionPane.INFORMATION_MESSAGE);
 
 					}
 					else
-						JOptionPane.showMessageDialog(null, "La classification a atteint les 500000 itÈrations sans avoir convergÈ. Veuillez rÈessayer", "Information", JOptionPane.INFORMATION_MESSAGE);
+						JOptionPane.showMessageDialog(null, "La classification a atteint les 500000 it√©rations sans avoir converg√©. Veuillez r√©essayer", "Information", JOptionPane.INFORMATION_MESSAGE);
 
 				   
 				}
@@ -287,11 +310,13 @@ public class Controleur
   		{
   			affichage.setEnabled(false);
   			algo.setEnabled(false);
+  			exporter.setEnabled(false);
   		}
   		else
   		{
   			affichage.setEnabled(true);
   			algo.setEnabled(true);
+  			exporter.setEnabled(true);
   		}
   		
   		if (graph == null)

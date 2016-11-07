@@ -5,10 +5,11 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.Point;
-import java.awt.Polygon;
 import java.awt.RenderingHints;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 
 import javax.swing.JPanel;
@@ -105,6 +106,43 @@ public class Graph extends JPanel
     	repaint();
     }
     
+    public void export(File file) throws IOException
+    {
+    	FileWriter fw = new FileWriter(file);
+    	
+    	ArrayList<double[]>[] jeuDeDonnees ;
+    	if( kmeans != null )
+    		jeuDeDonnees = kmeans.getClusters() ;
+    	else
+    		jeuDeDonnees = spectral ;
+    	
+    	
+    	for( ArrayList<double[]> result : jeuDeDonnees)
+		{
+    	    if ( result != null)
+    	    {
+    	    	for(double[] i : result)
+	        	{
+    	    		double x = i[0];
+	    			double y = i[1];
+	    			double z = i[2];
+	    			
+	    			int ligne = 1 ;
+	    			for( double[] d : data)
+	    	    	{
+	    	    		if ( x == d[0] && y == d[1] && z == d[2])
+	    	    			fw.write(ligne+" ");
+	    	    		
+	    	    		ligne++ ;
+	    	    	}
+	        	}
+    	    }
+    	    fw.write("\n");
+		}
+    	
+    	fw.close();
+    }
+    
 	private void dessineRepere(Graphics2D g2, String coord) 
 	{
 		g2.drawLine(ECART, ECART, ECART, h-ECART);
@@ -138,7 +176,7 @@ public class Graph extends JPanel
         }
 	}
 	
-
+	
 	private void dessineSpectral(Graphics2D g, String coord) 
 	{
 		int colorPas = 999999999/nbClusters ;
@@ -149,87 +187,86 @@ public class Graph extends JPanel
     	    ArrayList<Point> classes = new ArrayList<Point>();
     	    if ( d != null)
     	    {
-    	    	 for(double[] i : d)
-    	        	{
+    	    	for(double[] i : d)
+	        	{
+    	    		double x = i[0];
+	    			double y = i[1];
+	    			double z = i[2];
 
-    	        	    double x = i[0];
-    	    			double y = i[1];
-    	    			double z = i[2];
+	        	    if (coord.equals("XZ"))
+	        	    {
+	        	    	y = z ;
+	        	    	
+	        	    	classes.add(new Point((ECART+(int)(x*ZOOM))+2, (((h-ECART)-(int)(y*ZOOMAxeZ))+2)+ZSTART));
+	        	        
+	        	    	if(activeColor)
+	        	    		g.setPaint(new Color(color));
+	        	    	
+	        	    	g.fillOval(ECART+(int)(x*ZOOM), (((h-ECART)-(int)(y*ZOOMAxeZ)))+ZSTART, 5, 5);
+	        			
+	        	    	if(activeValeur)
+	        				g.drawString(""+z,ECART+(int)(x*ZOOM), (((h-ECART)-(int)(y*ZOOMAxeZ)))+ZSTART);
 
-    	        	    if (coord.equals("XZ"))
-    	        	    {
-    	        	    	y = z ;
-    	        	    	
-    	        	    	classes.add(new Point((ECART+(int)(x*ZOOM))+2, (((h-ECART)-(int)(y*ZOOMAxeZ))+2)+ZSTART));
-    	        	        
-    	        	    	if(activeColor)
-    	        	    		g.setPaint(new Color(color));
-    	        	    	
-    	        	    	g.fillOval(ECART+(int)(x*ZOOM), (((h-ECART)-(int)(y*ZOOMAxeZ)))+ZSTART, 5, 5);
-    	        			
-    	        	    	if(activeValeur)
-    	        				g.drawString(""+z,ECART+(int)(x*ZOOM), (((h-ECART)-(int)(y*ZOOMAxeZ)))+ZSTART);
+	        	    }
+	        	    else if (coord.equals("YZ"))
+	        	    {
+	        	    	x = y ;
+	        	    	y = z ;
+	        	    	
+	        	    	classes.add(new Point((ECART+(int)(x*ZOOM))+2, (((h-ECART)-(int)(y*ZOOMAxeZ))+2)+ZSTART));
+	        	    	
+	        	    	if(activeColor)
+	        	    		g.setPaint(new Color(color));
+	        	    	
+	        			g.fillOval(ECART+(int)(x*ZOOM), (((h-ECART)-(int)(y*ZOOMAxeZ)))+ZSTART, 5, 5);
+	        			
+	        			if(activeValeur)
+	        				g.drawString(""+z,ECART+(int)(x*ZOOM), (((h-ECART)-(int)(y*ZOOMAxeZ)))+ZSTART);
+	        	    }
+	        	    else
+	        	    {
+	        	    	//p.addPoint((ECART+(int)(x*ZOOM))+2, ((h-ECART)-(int)(y*ZOOM))+2);
+	        	    	classes.add(new Point((ECART+(int)(x*ZOOM))+2, ((h-ECART)-(int)(y*ZOOM))+2));
 
-    	        	    }
-    	        	    else if (coord.equals("YZ"))
-    	        	    {
-    	        	    	x = y ;
-    	        	    	y = z ;
-    	        	    	
-    	        	    	classes.add(new Point((ECART+(int)(x*ZOOM))+2, (((h-ECART)-(int)(y*ZOOMAxeZ))+2)+ZSTART));
-    	        	    	
-    	        	    	if(activeColor)
-    	        	    		g.setPaint(new Color(color));
-    	        	    	
-    	        			g.fillOval(ECART+(int)(x*ZOOM), (((h-ECART)-(int)(y*ZOOMAxeZ)))+ZSTART, 5, 5);
-    	        			
-    	        			if(activeValeur)
-    	        				g.drawString(""+z,ECART+(int)(x*ZOOM), (((h-ECART)-(int)(y*ZOOMAxeZ)))+ZSTART);
-    	        	    }
-    	        	    else
-    	        	    {
-    	        	    	//p.addPoint((ECART+(int)(x*ZOOM))+2, ((h-ECART)-(int)(y*ZOOM))+2);
-    	        	    	classes.add(new Point((ECART+(int)(x*ZOOM))+2, ((h-ECART)-(int)(y*ZOOM))+2));
+	        	    	if(activeColor)
+	        	    		g.setPaint(new Color(color));
+	        	    	
+	        			g.fillOval(ECART+(int)(x*ZOOM), (h-ECART)-(int)(y*ZOOM), 5, 5);
+	        			
+	        			if(activeValeur)
+	        	    		g.drawString("("+x+","+y+","+z+")",(ECART+(int)(x*ZOOM))+2, ((h-ECART)-(int)(y*ZOOM))+2);
 
-    	        	    	if(activeColor)
-    	        	    		g.setPaint(new Color(color));
-    	        	    	
-    	        			g.fillOval(ECART+(int)(x*ZOOM), (h-ECART)-(int)(y*ZOOM), 5, 5);
-    	        			
-    	        			if(activeValeur)
-    	        	    		g.drawString("("+x+","+y+","+z+")",(ECART+(int)(x*ZOOM))+2, ((h-ECART)-(int)(y*ZOOM))+2);
+	        	    }
+	        		//System.out.println(x+" ; "+y+" ; "+z);		
+	        	}
+	        	classes.sort(new Comparator<Point>() {
+					@Override
+					public int compare(Point p1, Point p2) {
+						if ( p1.x < p2.x)
+							return 1;
+						else if ( p1.x > p2.x )
+							return -1;
+						else
+							return 0;
+					}
+	        		
+				});
+	        	
+	        	Point precedent = null ;
+	        	for(Point point : classes)
+	        	{
+	        		if ( precedent != null )
+	        			g.drawLine(precedent.x, precedent.y, point.x, point.y);
+	        		precedent = point ;
+	        	}
+	        	
+	        	//g.drawPolygon(p);
 
-    	        	    }
-    	        		//System.out.println(x+" ; "+y+" ; "+z);		
-    	        	}
-    	        	classes.sort(new Comparator<Point>() {
-    					@Override
-    					public int compare(Point p1, Point p2) {
-    						if ( p1.x < p2.x)
-    							return 1;
-    						else if ( p1.x > p2.x )
-    							return -1;
-    						else
-    							return 0;
-    					}
-    	        		
-    				});
-    	        	
-    	        	Point precedent = null ;
-    	        	for(Point point : classes)
-    	        	{
-    	        		if ( precedent != null )
-    	        			g.drawLine(precedent.x, precedent.y, point.x, point.y);
-    	        		precedent = point ;
-    	        	}
-    	        	
-    	        	//g.drawPolygon(p);
-
-    	        	color += colorPas;
+	        	color += colorPas;
     	    }   
         }	
 	}
-
+	
 	
 	private void dessineKmeans(Graphics2D g, String coord) 
 	{ 

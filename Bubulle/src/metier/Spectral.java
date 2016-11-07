@@ -1,7 +1,5 @@
 package metier;
 
-import ihm.Controleur;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -13,11 +11,11 @@ public class Spectral
 
 	public static ArrayList<double[]>[] getClusters(double[][] data, int nbClasses)
 	{
-		 // Les clusters définitifs contiennent 5 points chacunes
+		 // Les clusters dÃ©finitifs contiennent 5 points chacunes
         double sigma = 1 ; boolean augmente = true ;
         ArrayList<double[]>[] clustersDefinitifs = new ArrayList[nbClasses];
   		
-  		// Tant que toutes les classes ne contienne pas 5 éléments : on enregistre celle en contienne 5
+  		// Tant que toutes les classes ne contienne pas 5 Ã©lÃ©ments : on enregistre celle en contienne 5
   		// puis on les supprime du jeu de donnees pour recommencer la classification sans elle
   		int stagne = 0 ;
   		int memetaille = taille(clustersDefinitifs) ;
@@ -45,7 +43,7 @@ public class Spectral
   	        for( ArrayList<double[]> d : clusters)
   	        {	 	    	    
   	    	    
-  	    	    // Enregistrement et suppression du jeu de donnes des classes contenant 5 éléments
+  	    	    // Enregistrement et suppression du jeu de donnes des classes contenant 5 Ã©lÃ©ments
   	    	    if ( d.size() == 5 )
   	    	    {  	    	    	
   	    	    	clustersDefinitifs[taille(clustersDefinitifs)] = d;
